@@ -1,0 +1,21 @@
+name: Weekly Review
+description: Friday end-of-week review and planning
+enabled: true
+
+triggers:
+  schedule:
+    when: "at 5:00 pm on friday"
+
+action:
+  type: new_session
+  title: "Weekly Review - Week {{week}}, {{year}}"
+  message: |
+    It's Friday! Time for our weekly review.
+
+    Please help me:
+    1. Review what was accomplished this week
+    2. Identify any incomplete items
+    3. Capture key learnings and wins
+    4. Plan initial priorities for next week
+
+    Let's create a comprehensive weekly summary.

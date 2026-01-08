@@ -1,0 +1,23 @@
+name: Morning Day Review
+description: Start the day with a review of tasks and priorities
+enabled: true
+
+triggers:
+  schedule:
+    when: "at 9:00 am"
+    # timezone: America/New_York  # optional, defaults to system timezone
+
+action:
+  type: new_session
+  title: "Morning Review - {{date}}"
+  # model: anthropic/claude-sonnet-4-20250514  # optional
+  # agent: default  # optional
+  message: |
+    Good morning! It's {{weekday}}, {{date}}.
+
+    Let's do a daily review:
+    1. What are my priorities for today?
+    2. Are there any pending tasks from yesterday?
+    3. What meetings or commitments do I have?
+
+    Please help me organize my day effectively.

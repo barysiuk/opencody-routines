@@ -1,0 +1,20 @@
+name: Evening Summary
+description: End of day wrap-up and reflection
+enabled: true
+
+triggers:
+  schedule:
+    when: "at 6:00 pm"
+
+action:
+  type: new_session
+  title: "Evening Summary - {{date}}"
+  message: |
+    Good evening! Let's wrap up the day ({{weekday}}, {{date}}).
+
+    Please help me:
+    1. Summarize what I accomplished today
+    2. Note any tasks that need to carry over to tomorrow
+    3. Capture any important insights or learnings
+
+    Let's create a brief end-of-day summary.
