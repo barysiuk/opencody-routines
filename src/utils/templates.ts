@@ -10,6 +10,7 @@ export interface TemplateContext {
   day: string;
   week: string; // ISO week number
   weekday: string; // Day name (Monday, Tuesday, etc.)
+  [key: string]: string; // Additional dynamic variables
 }
 
 /**
@@ -40,7 +41,7 @@ export function substituteTemplateVariables(
 ): string {
   return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
     if (key in context) {
-      return context[key as keyof TemplateContext];
+      return context[key];
     }
     // Return original if variable not found
     return match;
@@ -52,8 +53,12 @@ export function substituteTemplateVariables(
  */
 export function processTemplates(
   text: string,
-  timezone?: string
+  timezone?: string,
+  extraContext?: Record<string, string>
 ): string {
-  const context = buildTemplateContext(timezone);
+  const context = {
+    ...buildTemplateContext(timezone),
+    ...extraContext,
+  };
   return substituteTemplateVariables(text, context);
 }

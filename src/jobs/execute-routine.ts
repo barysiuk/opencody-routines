@@ -1,6 +1,8 @@
 import { parentPort, workerData } from "node:worker_threads";
 import { OpenCodeClient } from "../client/opencode.js";
 import { processTemplates } from "../utils/templates.js";
+import { sendNotification } from "../utils/notify.js";
+import type { NotifyConfig } from "../config/types.js";
 
 interface WorkerData {
   routine: {
@@ -12,6 +14,7 @@ interface WorkerData {
       model?: string;
       agent?: string;
       message: string;
+      notify?: NotifyConfig;
     };
     timezone?: string;
   };
@@ -42,7 +45,7 @@ async function executeRoutine(): Promise<void> {
         ? processTemplates(routine.action.title, routine.timezone)
         : undefined;
 
-      await client.createSessionWithMessage({
+      const result = await client.createSessionWithMessage({
         title,
         model: routine.action.model,
         agent: routine.action.agent,
@@ -50,6 +53,40 @@ async function executeRoutine(): Promise<void> {
       });
 
       log(`Routine ${routine.name} completed successfully`);
+
+      // Send notification if configured
+      if (routine.action.notify) {
+        const extraContext = {
+          session_id: result.sessionId,
+          routine_name: routine.name,
+        };
+
+        const notifyTitle = processTemplates(
+          routine.action.notify.title,
+          routine.timezone,
+          extraContext
+        );
+        const notifyBody = processTemplates(
+          routine.action.notify.body,
+          routine.timezone,
+          extraContext
+        );
+        const notifyDeeplink = routine.action.notify.deeplink
+          ? processTemplates(routine.action.notify.deeplink, routine.timezone, extraContext)
+          : undefined;
+
+        const success = await sendNotification({
+          title: notifyTitle,
+          body: notifyBody,
+          deeplink: notifyDeeplink,
+        });
+
+        if (success) {
+          log(`Notification sent for routine ${routine.name}`);
+        } else {
+          logError(`Failed to send notification for routine ${routine.name}`);
+        }
+      }
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);

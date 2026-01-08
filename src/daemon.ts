@@ -5,6 +5,7 @@ import { OpenCodeClient } from "./client/opencode.js";
 import { processTemplates } from "./utils/templates.js";
 import { logger } from "./utils/logger.js";
 import { createWatcher } from "./utils/watcher.js";
+import { sendNotification } from "./utils/notify.js";
 import type { LoadedRoutine } from "./config/types.js";
 
 export interface DaemonOptions {
@@ -240,6 +241,12 @@ export async function runRoutine(
       console.log(`  Agent: ${action.agent || "(default)"}`);
       console.log(`  Message:\n`);
       console.log(message.split("\n").map((line) => `    ${line}`).join("\n"));
+      if (action.notify) {
+        console.log(`  Notify:`);
+        console.log(`    Title: ${action.notify.title}`);
+        console.log(`    Body: ${action.notify.body}`);
+        console.log(`    Deeplink: ${action.notify.deeplink || "(none)"}`);
+      }
       console.log();
       return;
     }
@@ -247,13 +254,33 @@ export async function runRoutine(
     const client = new OpenCodeClient(serverUrl);
 
     try {
-      await client.createSessionWithMessage({
+      const result = await client.createSessionWithMessage({
         title,
         model: action.model,
         agent: action.agent,
         message,
       });
       logger.info("Routine completed successfully");
+
+      // Send notification if configured
+      if (action.notify) {
+        const extraContext = {
+          session_id: result.sessionId,
+          routine_name: routine.config.name,
+        };
+
+        const notifyTitle = processTemplates(action.notify.title, timezone, extraContext);
+        const notifyBody = processTemplates(action.notify.body, timezone, extraContext);
+        const notifyDeeplink = action.notify.deeplink
+          ? processTemplates(action.notify.deeplink, timezone, extraContext)
+          : undefined;
+
+        await sendNotification({
+          title: notifyTitle,
+          body: notifyBody,
+          deeplink: notifyDeeplink,
+        });
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.error(`Routine failed: ${errorMessage}`);

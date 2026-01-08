@@ -3,13 +3,14 @@
 import { Command } from "commander";
 import { resolve } from "node:path";
 import { startDaemon, listRoutines, validateRoutines, runRoutine } from "./daemon.js";
+import { VERSION } from "./version.js";
 
 const program = new Command();
 
 program
   .name("opencody-routines")
   .description("Automation engine for OpenCode - schedule routines to run sessions automatically")
-  .version("0.0.1");
+  .version(VERSION);
 
 program
   .command("start")

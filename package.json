@@ -1,6 +1,6 @@
 {
   "name": "opencody-routines",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Automation engine for OpenCode - schedule routines to run sessions automatically",
   "type": "module",
   "main": "dist/index.js",

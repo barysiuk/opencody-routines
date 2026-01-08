@@ -20,12 +20,19 @@ export const triggersSchema = z
     { message: "At least one trigger must be defined" }
   );
 
+export const notifySchema = z.object({
+  title: z.string().min(1, "Notification title is required"),
+  body: z.string().min(1, "Notification body is required"),
+  deeplink: z.string().optional(),
+});
+
 export const newSessionActionSchema = z.object({
   type: z.literal("new_session"),
   title: z.string().optional(),
   model: z.string().optional(),
   agent: z.string().optional(),
   message: z.string().min(1, "Message is required"),
+  notify: notifySchema.optional(),
 });
 
 export const actionSchema = z.discriminatedUnion("type", [

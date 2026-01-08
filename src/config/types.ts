@@ -13,12 +13,19 @@ export type Triggers = {
   // webhook?: WebhookTrigger;
 };
 
+export type NotifyConfig = {
+  title: string;
+  body: string;
+  deeplink?: string;
+};
+
 export type NewSessionAction = {
   type: "new_session";
   title?: string;
   model?: string;
   agent?: string;
   message: string;
+  notify?: NotifyConfig;
 };
 
 export type Action = NewSessionAction;
